@@ -1,3 +1,4 @@
+from base64 import encode
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List
@@ -36,16 +37,16 @@ async def search(para: SearchPara):
     data_path = configs['data_path'] # path to A-Soul-Data
     words = para.words
     
-    with open(data_path+'/db/main.json') as f:
+    with open(data_path+'/db/main.json',encoding="utf-8") as f:
         years = json.load(f)['LiveClip']
     main_json = []
     search_json = {}
     for year in years:
         mj_path = data_path+'/db/'+year+'/main.json'
         search_path = data_path+'/db/'+year+'/search.json'
-        with open(mj_path) as f:
+        with open(mj_path,encoding="utf-8") as f:
             main_json += json.load(f)
-        with open(search_path) as f:
+        with open(search_path,encoding="utf-8") as f:
             search_json.update(json.load(f))
     table_list = []
     for k, data in enumerate(main_json):
