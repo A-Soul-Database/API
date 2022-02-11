@@ -49,7 +49,7 @@ async def search(para: SearchPara):
         mj_path = data_path+'/db/'+year+'/main.json'
         search_path = data_path+'/db/'+year+'/search.json'
         main_json += get_data(running_type,mj_path)
-        search_json+= get_data(running_type,search_path)
+        search_json.update(get_data(running_type,search_path))
     table_list = []
     for k, data in enumerate(main_json):
         try:
