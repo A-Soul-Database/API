@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List
 from fastapi.middleware.cors import CORSMiddleware
-
+import requests
 import uvicorn
 from config import configs
 import json
@@ -28,6 +28,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+def get_data(running_type:str,path):
+    if running_type == "remote": return requests.get(path).json()
+    if running_type == "local": return json.loads(open(path,"r",encoding="utf-8").read())
 
 def match(subtitles: str, search_words: str):
     return search_words.lower() in subtitles.lower()
@@ -36,18 +39,17 @@ def match(subtitles: str, search_words: str):
 async def search(para: SearchPara):
     data_path = configs['data_path'] # path to A-Soul-Data
     words = para.words
-    
-    with open(data_path+'/db/main.json',encoding="utf-8") as f:
-        years = json.load(f)['LiveClip']
+    running_type = configs['running_type'] 
+
+    years = get_data(running_type,data_path+'/db/main.json')['LiveClip']
+
     main_json = []
     search_json = {}
     for year in years:
         mj_path = data_path+'/db/'+year+'/main.json'
         search_path = data_path+'/db/'+year+'/search.json'
-        with open(mj_path,encoding="utf-8") as f:
-            main_json += json.load(f)
-        with open(search_path,encoding="utf-8") as f:
-            search_json.update(json.load(f))
+        main_json += get_data(running_type,mj_path)
+        search_json+= get_data(running_type,search_path)
     table_list = []
     for k, data in enumerate(main_json):
         try:
