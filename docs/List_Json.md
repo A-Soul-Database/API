@@ -1,4 +1,4 @@
-## Main-Api  
+## List_Json -Api  
 Main,Cover及Indexer 的筛选,搜索  
 #### 用法  
 Host: `https://apihk.asdb.live/Main/V1`  
@@ -81,9 +81,6 @@ bv          str         特定Bv号
   }
 }
 ```
-- 获取运行状态
-`Get /Status`
-
 
 - 筛选`Main.json`  
 `Post /Main_Fliter`

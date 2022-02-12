@@ -1,58 +1,18 @@
 from typing import Optional
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import APIRouter 
 from pydantic import BaseModel
-import requests
-from threading import Thread
-import time
 import itertools
-import functools
+import sys
+sys.path.append("..")
+from depedencies import Get_Source
 
-Api = FastAPI()
-Api.add_middleware(
-    CORSMiddleware,
-    allow_origins="*",
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+Api = APIRouter(
+    prefix="/List_Json",
+    tags=["List_Json"],
 )
-################ Sub Thread 1 : Sync Data #####################
-Data_Sources = ["https://raw.githubusercontent.com/A-Soul-Database/A-Soul-Data/main","https://cdn.jsdelivr.net/gh/A-Soul-Database/A-Soul-Data@latest/db"]
-Main_Json = []
-Indexer = []
-Cover = {}
-Last_Update = 0
-Acquire_Times = 0
-Got_Json = False
-def Sync_Data():
-    global Main_Json, Indexer, Cover, Got_Json, Last_Update
-    Db_Url = "https://raw.githubusercontent.com/A-Soul-Database/A-Soul-Data/main/db"
-    while True:
-        try:
-            Base_Json = requests.get(Db_Url+"/main.json").json()["LiveClip"]
-            main,indexer,cover = [],[],{}
-            for fn in Base_Json:
-                main.extend(requests.get(f"{Db_Url}/{fn}/main.json").json()),indexer.extend(requests.get(f"{Db_Url}/{fn}/indexer.json").json()),cover.update(requests.get(f"{Db_Url}/{fn}/Cover.json").json())
-            Got_Json = False
-            Main_Json,Indexer,Cover = main,indexer,cover
-            Got_Json = True
-            Last_Update = time.time()
-            time.sleep(60)
-        except Exception as e:
-            print(f"Data Sync Exception Occured : {e} \n time: {time.time()}")
-            time.sleep(5)
-Thread(target=Sync_Data).start()
-########################################################################
-def Check_Data_Sync():
-    if not Got_Json: return {"code":-1,"msg":"Data Initializing or Updating"}
 
-def Statistics(fn):
-    @functools.wraps(fn)
-    def wrapper(*args,**kwargs):
-        global Acquire_Times
-        Acquire_Times += 1
-        return fn(*args,**kwargs)
-    return wrapper
+def Check_Data_Sync():
+    if not Get_Source.Got_Data: return {"code":-1,"msg":"Data Initializing or Updating"}
 
 class Fliter(BaseModel):
     bv:Optional[str] = None
@@ -67,7 +27,7 @@ class Fliter(BaseModel):
 
 ########################### Apis ###########################
 @Api.post("/V1/Main_Fliter")
-@Statistics
+@Get_Source.Statistics
 def Fliter_Main(fliter:Fliter):
     if Check_Data_Sync() != None: return Check_Data_Sync()
     fliter_dict = fliter.dict()
@@ -83,7 +43,7 @@ def Fliter_Main(fliter:Fliter):
 
     if fliter_dict["bv"] != None: return Return_Main_Data(bv=fliter_dict["bv"])
 
-    for item in Main_Json:
+    for item in Get_Source.Main_Json:
         if (fliter_dict["liveroom"] != None) and (fliter_dict["liveroom"] != item["liveRoom"]): continue
         if (fliter_dict["title"] != None) and (fliter_dict["title"] not in item["title"]): continue
         
@@ -108,43 +68,43 @@ def Fliter_Main(fliter:Fliter):
 
 
 @Api.get("/V1/Main_Data")
-@Statistics
+@Get_Source.Statistics
 def Return_Main_Data(bv:str="",reverse:int=0):
     if Check_Data_Sync() != None: return Check_Data_Sync()
-    if len(bv) ==0 :return {"code":0,"msg":"ok","data":reverse and Main_Json[::-1] or Main_Json}
+    if len(bv) ==0 :return {"code":0,"msg":"ok","data":reverse and Get_Source.Main_Json[::-1] or Get_Source.Main_Json}
     else:
-        try:return {"code":0,"msg":"ok","data":Main_Json[Indexer.index(bv)]}
+        try:return {"code":0,"msg":"ok","data":Get_Source.Main_Json[Get_Source.Indexer.index(bv)]}
         except ValueError: return {"code":-1,"msg":"No Bv"}
 
 @Api.get("/V1/Indexer_Data")
-@Statistics
+@Get_Source.Statistics
 def Give_Indexer(bv:str=""):
     if Check_Data_Sync() != None: return Check_Data_Sync()
     if len(bv): 
         try:
-            return {"code":0,"msg":"ok","data":Indexer.index(bv)}
+            return {"code":0,"msg":"ok","data":Get_Source.Indexer.index(bv)}
         except ValueError:
             return {"code":-1,"msg":"No Bv"}
-    else: return {"code":0,"msg":"ok","data":Indexer}
+    else: return {"code":0,"msg":"ok","data":Get_Source.Indexer}
 
 @Api.get("/V1/Cover_Data")
-@Statistics
+@Get_Source.Statistics
 def Give_Cover(bv:str=""):
     if Check_Data_Sync() != None: return Check_Data_Sync()
     if len(bv): 
         try:
-            return {"code":0,"msg":"ok","data":Cover[bv]}
+            return {"code":0,"msg":"ok","data":Get_Source.Cover[bv]}
         except KeyError:
             return {"code":-1,"msg":"No Bv"}
-    else: return {"code":0,"msg":"ok","data":Cover}
+    else: return {"code":0,"msg":"ok","data":Get_Source.Cover}
 
 @Api.get("/V1/Srt_Data")
-@Statistics
+@Get_Source.Statistics
 def Give_Srt_Url(bv):
     if Check_Data_Sync() != None: return Check_Data_Sync()
     try:
-        date = Main_Json[Indexer.index(bv)]["date"].split("-")
-        clips,year,month = Main_Json[Indexer.index(bv)]["clip"] , date[0], date[1]
+        date = Get_Source.Main_Json[Get_Source.Indexer.index(bv)]["date"].split("-")
+        clips,year,month = Get_Source.Main_Json[Get_Source.Indexer.index(bv)]["clip"] , date[0], date[1]
     except KeyError: return{"code":-1,"msg":"No Bv"}
 
     if clips>1 : name =  [f"{bv}-{fn+1}.srt" for fn in range(clips)] 
@@ -153,14 +113,7 @@ def Give_Srt_Url(bv):
     year = "20" + year
     month  = "0" + month if int(month)==1 else month
 
-    retuns = {"name":name,"url":[f"/db/{year}/{month}/srt/{fn}" for fn in name],"sources":Data_Sources}
+    retuns = {"name":name,"url":[f"/db/{year}/{month}/srt/{fn}" for fn in name],"sources":Get_Source.Data_Sources}
     return {"code":0,"msg":"ok","data":retuns}
 
-@Api.get("/V1/Status")
-@Statistics
-def Give_Status():
-    return {"code":0,"msg":"ok","data":{"last_update_DB":Last_Update,"Acquire_Times":Acquire_Times}}
-########################################################################
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app="app:Api", host="localhost",port=5003)
+
