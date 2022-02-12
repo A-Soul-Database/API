@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from typing import List
+from typing import List,Dict
 import sys
 sys.path.append("..")
 from depedencies import Get_Source
@@ -20,10 +20,15 @@ class SearchRes(BaseModel):
     hour:str
     title:str
 
+class Restful(BaseModel):
+    code:int
+    msg:str
+    data:SearchRes
+
 def match(subtitles: str, search_words: str):
     return search_words.lower() in subtitles.lower()
 
-@app.post("/sub_search",response_model=List[SearchRes])
+@app.post("/sub_search",response_model=Restful)
 async def search(para: SearchPara):
     words = para.words
     table_list = []
@@ -53,4 +58,4 @@ async def search(para: SearchPara):
             continue
         if match(subtitles,words):
             search_res.append(data)
-    return {"code":0,"msg":"ok","data":search_res}
+    return search_res
