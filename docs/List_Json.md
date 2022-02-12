@@ -1,7 +1,7 @@
 ## List_Json -Api  
 Main,Cover及Indexer 的筛选,搜索  
 #### 用法  
-Host: `https://apihk.asdb.live/Main/V1`  
+Host: `https://apihk.asdb.live/Api/List_Json`  
 - 列出所有`Main.json`  
 `Get /Main_Data`  
 可选参数  
