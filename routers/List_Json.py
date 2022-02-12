@@ -116,4 +116,15 @@ def Give_Srt_Url(bv):
     retuns = {"name":name,"url":[f"/db/{year}/{month}/srt/{fn}" for fn in name],"sources":Get_Source.Data_Sources}
     return {"code":0,"msg":"ok","data":retuns}
 
+<<<<<<< HEAD:routers/List_Json.py
 
+=======
+@Api.get("/V1/Status")
+@Statistics
+def Give_Status():
+    return {"code":0,"msg":"ok","data":{"last_update_DB":Last_Update,"Acquire_Times":Acquire_Times}}
+########################################################################
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app="app:Api", host="localhost",port=5003)
+>>>>>>> 17b5f5969f1411dcd363b9b26df1ac545ae76926:Main-Api/app.py
