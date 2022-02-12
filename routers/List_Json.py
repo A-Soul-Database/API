@@ -113,6 +113,6 @@ def Give_Srt_Url(bv):
     year = "20" + year
     month  = "0" + month if int(month)==1 else month
 
-    retuns = {"name":name,"url":[f"/db/{year}/{month}/srt/{fn}" for fn in name],"sources":Get_Source.Data_Sources}
+    retuns = {"name":name,"url":[f"/{year}/{month}/srt/{fn}" for fn in name],"sources":Get_Source.Data_Sources}
     return {"code":0,"msg":"ok","data":retuns}
 
