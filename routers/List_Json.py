@@ -105,6 +105,7 @@ def Give_Srt_Url(bv):
     try:
         date = Get_Source.Main_Json[Get_Source.Indexer.index(bv)]["date"].split("-")
         clips,year,month = Get_Source.Main_Json[Get_Source.Indexer.index(bv)]["clip"] , date[0], date[1]
+        if len(month) == 1:month = "0"+month
     except KeyError: return{"code":-1,"msg":"No Bv"}
 
     if clips>1 : name =  [f"{bv}-{fn+1}.srt" for fn in range(clips)] 
