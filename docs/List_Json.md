@@ -8,6 +8,7 @@ Host: `https://apihk.asdb.live/Api/List_Json`
 ```
 reverse    int(0/1)     正/逆序
 bv         str          特定Bv号
+brief      bool         梗概(仅包括日期,时间,标题等)
 ```
 响应体  
 ```json

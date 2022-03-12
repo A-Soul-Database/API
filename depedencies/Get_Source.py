@@ -4,6 +4,7 @@ import functools
 
 Data_Sources = ["https://raw.githubusercontent.com/A-Soul-Database/A-Soul-Data/main/db","https://cdn.jsdelivr.net/gh/A-Soul-Database/A-Soul-Data@latest/db"]
 Main_Json = []
+Brief_Main_Json = []
 Indexer = []
 Cover = {}
 Search_Json = {}
@@ -11,7 +12,7 @@ Last_Update = 0
 Acquire_Times = 0
 Got_Data = False
 def Sync_Data():
-    global Main_Json, Indexer, Cover, Got_Data, Last_Update , Search_Json
+    global Main_Json, Indexer, Cover, Got_Data, Last_Update , Search_Json, Brief_Main_Json
     Db_Url = Data_Sources[0]
     while True:
         try:
@@ -20,7 +21,7 @@ def Sync_Data():
             for fn in Base_Json:
                 main.extend(requests.get(f"{Db_Url}/{fn}/main.json").json()),indexer.extend(requests.get(f"{Db_Url}/{fn}/indexer.json").json()),cover.update(requests.get(f"{Db_Url}/{fn}/Cover.json").json()),search.update(requests.get(f"{Db_Url}/{fn}/search.json").json())
             Got_Data = False
-            Main_Json,Indexer,Cover,Search_Json = main,indexer,cover,search
+            Main_Json,Indexer,Cover,Search_Json, Brief_Main_Json = main,indexer,cover,search ,[{"title":i["title"],"date":i["date"],"time":i["time"],"bv":i["bv"],"type":i["type"],"staff":i["staff"]} for i in main]
             Got_Data = True
             Last_Update = time.time()
             time.sleep(60)

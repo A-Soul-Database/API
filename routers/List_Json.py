@@ -69,11 +69,13 @@ def Fliter_Main(fliter:Fliter):
 
 @Api.get("/V1/Main_Data")
 @Get_Source.Statistics
-def Return_Main_Data(bv:str="",reverse:int=0):
+def Return_Main_Data(bv:str="",reverse:int=0,brief:bool=False):
     if Check_Data_Sync() != None: return Check_Data_Sync()
-    if len(bv) ==0 :return {"code":0,"msg":"ok","data":reverse and Get_Source.Main_Json[::-1] or Get_Source.Main_Json}
+    if len(bv) ==0 :
+        if brief: return {"code":0,"msg":"ok","data":reverse and Get_Source.Brief_Main_Json[::-1] or Get_Source.Brief_Main_Json}
+        else: return {"code":0,"msg":"ok","data":reverse and Get_Source.Main_Json[::-1] or Get_Source.Main_Json}
     else:
-        try:return {"code":0,"msg":"ok","data":Get_Source.Main_Json[Get_Source.Indexer.index(bv)]}
+        try: return {"code":0,"msg":"ok","data":Get_Source.Main_Json[Get_Source.Indexer.index(bv)]}
         except ValueError: return {"code":-1,"msg":"No Bv"}
 
 @Api.get("/V1/Indexer_Data")
@@ -116,4 +118,3 @@ def Give_Srt_Url(bv):
 
     retuns = {"name":name,"url":[f"/{year}/{month}/srt/{fn}" for fn in name],"sources":Get_Source.Data_Sources}
     return {"code":0,"msg":"ok","data":retuns}
-
