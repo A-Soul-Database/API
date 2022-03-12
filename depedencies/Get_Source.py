@@ -2,7 +2,7 @@ import requests
 import time
 import functools
 
-Data_Sources = ["https://raw.githubusercontent.com/A-Soul-Database/A-Soul-Data/main/db","https://cdn.jsdelivr.net/gh/A-Soul-Database/A-Soul-Data@latest/db"]
+Data_Sources = ["https://livedb.asoulfan.com","https://raw.githubusercontent.com/A-Soul-Database/A-Soul-Data/main/db","https://cdn.jsdelivr.net/gh/A-Soul-Database/A-Soul-Data@latest/db"]
 Main_Json = []
 Brief_Main_Json = []
 Indexer = []
@@ -13,7 +13,7 @@ Acquire_Times = 0
 Got_Data = False
 def Sync_Data():
     global Main_Json, Indexer, Cover, Got_Data, Last_Update , Search_Json, Brief_Main_Json
-    Db_Url = Data_Sources[0]
+    Db_Url = Data_Sources[1]
     while True:
         try:
             Base_Json = requests.get(Db_Url+"/main.json").json()["LiveClip"]
