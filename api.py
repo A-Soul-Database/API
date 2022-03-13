@@ -20,5 +20,5 @@ Api.include_router(etc.Api,prefix="/Api")
 
 if __name__ == "__main__":
     Thread(target=Get_Source.Sync_Data).start()
-    import uvicorn
-    uvicorn.run(Api,host="localhost",port=5000)
+    import uvicorn,os
+    uvicorn.run(Api,host="localhost",port=5000,workers=os.cpu_count())
