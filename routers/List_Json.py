@@ -58,7 +58,7 @@ def Fliter_Main(fliter:Fliter):
 
         Key_Word_Check = False
         if fliter_dict["keywords"] != None:
-            if (fliter_dict["keywords"] in item["title"]) or (fliter_dict["keywords"] in ''.join(item["tags"])): Key_Word_Check = True
+            if (fliter_dict["keywords"] in item["title"].lower()) or (fliter_dict["keywords"] in ''.join(item["tags"]).lower()): Key_Word_Check = True
             for i in item["items"]:
                 if fliter_dict["keywords"] in i["item"]: Key_Word_Check = True
         else: Key_Word_Check = True
