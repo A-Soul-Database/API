@@ -28,7 +28,7 @@ class Restful(BaseModel):
 def match(subtitles: str, search_words: str):
     return search_words.lower() in subtitles.lower()
 
-@app.post("/sub_search",response_model=Restful)
+@app.post("/sub_search",response_model=List[SearchRes])
 async def search(para: SearchPara):
     words = para.words
     table_list = []
