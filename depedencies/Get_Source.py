@@ -2,7 +2,7 @@ import requests
 import time
 import functools
 
-Data_Sources = ["https://livedb.asoulfan.com/db","https://raw.githubusercontent.com/A-Soul-Database/A-Soul-Data/main/db","https://cdn.jsdelivr.net/gh/A-Soul-Database/A-Soul-Data@latest/db"]
+Data_Sources = ["https://maindata.a-soul-database.vercel.app/db","https://raw.githubusercontent.com/A-Soul-Database/A-Soul-Data/main/db","https://cdn.jsdelivr.net/gh/A-Soul-Database/A-Soul-Data@latest/db"]
 Main_Json = []
 Brief_Main_Json = []
 Indexer = []
